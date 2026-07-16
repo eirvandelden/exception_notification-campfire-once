@@ -61,6 +61,22 @@ class CampfireNotifierTest < Minitest::Test
     end
   end
 
+  def test_runs_notifier_callbacks_around_webhook_delivery
+    callbacks = []
+    notifier = ExceptionNotifier::CampfireNotifier.new(
+      webhook_url: @webhook_url,
+      app_name: "TestApp",
+      pre_callback: ->(*) { callbacks << :pre },
+      post_callback: ->(*) { callbacks << :post }
+    )
+
+    Net::HTTP.stub(:post, ->(*) { callbacks << :delivery }) do
+      notifier.call(@exception)
+    end
+
+    assert_equal %i[pre delivery post], callbacks
+  end
+
   def test_filters_request_parameters_and_excludes_session_data
     body = nil
     env = Rack::MockRequest.env_for("/?password=parameter-secret")
