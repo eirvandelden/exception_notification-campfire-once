@@ -71,8 +71,8 @@ class CampfireIntegrationTest < Minitest::Test
     assert_predicate status, :success?, output
   end
 
-  def test_version_is_stable_for_source_checkouts
-    assert_equal "0.1.0", ExceptionNotification::Once::Campfire::VERSION
+  def test_version_includes_the_git_sha_for_source_checkouts
+    assert_match(/\A0\.1\.0\.pre\.git\.[0-9a-f]+\z/, ExceptionNotification::Once::Campfire::VERSION)
   end
 
   def test_gemspec_requires_exception_notification_5_or_newer
