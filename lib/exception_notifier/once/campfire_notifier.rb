@@ -23,7 +23,7 @@ module ExceptionNotifier
           uri = URI.parse(@webhook_url)
           Net::HTTP.post(uri, text, "Content-Type" => "text/plain")
         rescue StandardError => e
-          Rails.logger.error("CampfireNotifier failed: #{e.class}: #{e.message}")
+          Rails.logger.error("CampfireNotifier failed: #{e.class}: #{e.message}") if defined?(Rails) && Rails.respond_to?(:logger)
         end
       end
 

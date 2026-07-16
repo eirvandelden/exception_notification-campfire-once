@@ -30,4 +30,6 @@ end
 
 ## License
 
-MIT
+O'Saasy License. This license permits use, modification, and distribution but
+prohibits offering the software as a competing hosted, managed, or SaaS service.
+See [LICENSE.md](LICENSE.md) for the complete terms.

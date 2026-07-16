@@ -42,4 +42,26 @@ class CampfireIntegrationTest < Minitest::Test
 
     assert_predicate status, :success?, output
   end
+
+  def test_non_rails_app_swallows_webhook_delivery_failures
+    output, status = Open3.capture2e(
+      RbConfig.ruby,
+      "-Ilib",
+      "-e",
+      <<~RUBY
+        require "exception_notification/once/campfire"
+        notifier = ExceptionNotifier::CampfireNotifier.new(
+          webhook_url: "http://127.0.0.1:1",
+          app_name: "TestApp"
+        )
+        notifier.call(RuntimeError.new("boom"))
+      RUBY
+    )
+
+    assert_predicate status, :success?, output
+  end
+
+  def test_version_is_stable_for_source_checkouts
+    assert_equal "0.1.0", ExceptionNotification::Once::Campfire::VERSION
+  end
 end
