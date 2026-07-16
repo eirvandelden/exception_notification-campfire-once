@@ -27,12 +27,12 @@ module Rails
   end
 end
 
-require "exception_notifier/campfire_notifier"
+require "exception_notifier/once/campfire_notifier"
 
 class CampfireNotifierTest < Minitest::Test
   def setup
     @webhook_url = "https://example.com/rooms/1/abc123/messages"
-    @notifier = ExceptionNotifier::CampfireNotifier.new(
+    @notifier = ExceptionNotifier::Once::CampfireNotifier.new(
       webhook_url: @webhook_url,
       app_name: "TestApp"
     )

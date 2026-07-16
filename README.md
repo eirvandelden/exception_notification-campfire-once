@@ -17,7 +17,7 @@ Then run `bundle install`.
 Register the notifier in `config/initializers/exception_notification.rb`:
 
 ```ruby
-ExceptionNotifier.register_exception_notifier :campfire, ExceptionNotifier::CampfireNotifier
+ExceptionNotifier.register_exception_notifier :campfire, ExceptionNotifier::Once::CampfireNotifier
 
 if Rails.env.production?
   Rails.application.config.middleware.use ExceptionNotification::Rack,
