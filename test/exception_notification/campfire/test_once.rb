@@ -8,6 +8,6 @@ class ExceptionNotification::Campfire::TestOnce < Minitest::Test
   end
 
   def test_it_does_something_useful
-    assert false
+    skip "TODO: add real integration test"
   end
 end
