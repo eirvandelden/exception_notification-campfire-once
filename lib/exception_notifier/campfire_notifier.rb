@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "net/http"
 require "socket"
 require "uri"
@@ -6,7 +8,11 @@ class ExceptionNotifier::CampfireNotifier < ExceptionNotifier::BaseNotifier
   def initialize(options)
     super
     @webhook_url = options.fetch(:webhook_url)
-    @app_name = options[:app_name] || (Rails.application.class.module_parent_name rescue "App")
+    @app_name = options[:app_name] || begin
+      Rails.application.class.module_parent_name
+    rescue StandardError
+      "App"
+    end
   end
 
   def call(exception, options = {})
