@@ -14,11 +14,9 @@ Then run `bundle install`.
 
 ## Usage
 
-Register the notifier in `config/initializers/exception_notification.rb`:
+Configure the notifier in `config/initializers/exception_notification.rb`:
 
 ```ruby
-ExceptionNotifier.register_exception_notifier :campfire, ExceptionNotifier::Once::CampfireNotifier
-
 if Rails.env.production?
   Rails.application.config.middleware.use ExceptionNotification::Rack,
     campfire: { webhook_url: ENV.fetch("CAMPFIRE_WEBHOOK_URL") }

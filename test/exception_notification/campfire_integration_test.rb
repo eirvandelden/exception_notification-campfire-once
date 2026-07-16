@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require "test_helper"
+require "open3"
+require "rbconfig"
+require "exception_notification"
+require "exception_notification/once/campfire"
+
+class CampfireIntegrationTest < Minitest::Test
+  def teardown
+    ExceptionNotifier.unregister_exception_notifier(:campfire)
+  end
+
+  def test_rack_configures_the_campfire_notifier
+    ExceptionNotification::Rack.new(
+      ->(_env) { [ 200, {}, [] ] },
+      campfire: { webhook_url: "https://example.com/rooms/1/abc123/messages" }
+    )
+
+    assert_instance_of ExceptionNotifier::CampfireNotifier,
+      ExceptionNotifier.registered_exception_notifier(:campfire)
+  end
+
+  def test_public_entrypoint_loads_without_preloading_the_dependency
+    output, status = Open3.capture2e(
+      RbConfig.ruby,
+      "-Ilib",
+      "-e",
+      'require "exception_notification/once/campfire"'
+    )
+
+    assert_predicate status, :success?, output
+  end
+
+  def test_gem_name_entrypoint_loads_without_preloading_the_dependency
+    output, status = Open3.capture2e(
+      RbConfig.ruby,
+      "-Ilib",
+      "-e",
+      'require "exception_notification-campfire-once"'
+    )
+
+    assert_predicate status, :success?, output
+  end
+end

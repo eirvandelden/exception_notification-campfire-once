@@ -3,14 +3,8 @@
 require "test_helper"
 require "minitest/mock"
 require "logger"
-
-# Stub ExceptionNotifier::BaseNotifier since exception_notification gem
-# is not a test dependency.
-module ExceptionNotifier
-  class BaseNotifier
-    def initialize(options = {}); end
-  end
-end
+require "exception_notification"
+require "action_dispatch"
 
 # Stub Rails to satisfy campfire_notifier.rb dependencies.
 module Rails
@@ -32,7 +26,7 @@ require "exception_notifier/once/campfire_notifier"
 class CampfireNotifierTest < Minitest::Test
   def setup
     @webhook_url = "https://example.com/rooms/1/abc123/messages"
-    @notifier = ExceptionNotifier::Once::CampfireNotifier.new(
+    @notifier = ExceptionNotifier::CampfireNotifier.new(
       webhook_url: @webhook_url,
       app_name: "TestApp"
     )
@@ -65,5 +59,43 @@ class CampfireNotifierTest < Minitest::Test
     Net::HTTP.stub(:post, ->(*) { raise StandardError, "network error" }) do
       assert_silent { @notifier.call(@exception) }
     end
+  end
+
+  def test_filters_request_parameters_and_excludes_session_data
+    body = nil
+    env = Rack::MockRequest.env_for("/?password=parameter-secret")
+    env["action_dispatch.parameter_filter"] = [ :password ]
+    env["rack.session"] = { "secret" => "session-secret" }
+
+    Net::HTTP.stub(:post, ->(_uri, text, _headers) { body = text; nil }) do
+      @notifier.call(@exception, env: env)
+    end
+
+    assert_includes body, "[FILTERED]"
+    refute_includes body, "parameter-secret"
+    refute_includes body, "session-secret"
+  end
+
+  def test_filters_sensitive_data_without_action_dispatch
+    body = nil
+    request_class = ActionDispatch.send(:remove_const, :Request)
+    env = Rack::MockRequest.env_for(
+      "/?password=query-secret",
+      method: "POST",
+      input: "password=body-secret",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded"
+    )
+    env["rack.session"] = { "secret" => "session-secret" }
+
+    Net::HTTP.stub(:post, ->(_uri, text, _headers) { body = text; nil }) do
+      @notifier.call(@exception, env: env)
+    end
+
+    assert_includes body, "[FILTERED]"
+    refute_includes body, "query-secret"
+    refute_includes body, "body-secret"
+    refute_includes body, "session-secret"
+  ensure
+    ActionDispatch.const_set(:Request, request_class) if request_class
   end
 end

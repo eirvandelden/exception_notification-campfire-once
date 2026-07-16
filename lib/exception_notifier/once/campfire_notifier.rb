@@ -3,10 +3,10 @@
 require "net/http"
 require "socket"
 require "uri"
+require "active_support/parameter_filter"
 
 module ExceptionNotifier
-  module Once
-    class CampfireNotifier < ExceptionNotifier::BaseNotifier
+  class CampfireNotifier < ExceptionNotifier::BaseNotifier
       def initialize(options)
         super
         @webhook_url = options.fetch(:webhook_url)
@@ -36,12 +36,18 @@ module ExceptionNotifier
         sections << "🚨 #{@app_name}: #{exception.class}: #{exception.message}"
 
         if env
-          request = Rack::Request.new(env)
-          sections << "--- Request ---\nURL: #{request.url}\nMethod: #{request.request_method}\nParams: #{request.params.inspect}\nRemote IP: #{request.ip}\nUser-Agent: #{env['HTTP_USER_AGENT']}"
-        end
-
-        if env && env["rack.session"] && !env["rack.session"].empty?
-          sections << "--- Session ---\n#{env['rack.session'].to_h.inspect}"
+          request = if defined?(ActionDispatch::Request)
+            ActionDispatch::Request.new(env)
+          else
+            Rack::Request.new(env)
+          end
+          params = if request.respond_to?(:filtered_parameters)
+            request.filtered_parameters
+          else
+            ActiveSupport::ParameterFilter.new(filter_parameters(env)).filter(request.params)
+          end
+          url = request.respond_to?(:filtered_path) ? "#{request.base_url}#{request.filtered_path}" : "#{request.base_url}#{request.path}"
+          sections << "--- Request ---\nURL: #{url}\nMethod: #{request.request_method}\nParams: #{params.inspect}\nRemote IP: #{request.ip}\nUser-Agent: #{env['HTTP_USER_AGENT']}"
         end
 
         env_info = []
@@ -60,6 +66,9 @@ module ExceptionNotifier
 
         sections.join("\n\n")
       end
-    end
+
+      def filter_parameters(env)
+        Array(env["action_dispatch.parameter_filter"]) + [ :password, :secret, :token ]
+      end
   end
 end
