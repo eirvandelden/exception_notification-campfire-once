@@ -5,8 +5,8 @@ require_relative "lib/exception_notification/once/campfire/version"
 Gem::Specification.new do |spec|
   spec.name = "exception_notification-campfire-once"
   spec.version = ExceptionNotification::Once::Campfire::VERSION
-  spec.authors = ["Etienne van Delden de la Haije"]
-  spec.email = ["etienne@vandelden.family"]
+  spec.authors = [ "Etienne van Delden de la Haije" ]
+  spec.email = [ "etienne@vandelden.family" ]
 
   spec.summary = "Campfire (37signals ONCE) notifier for the exception_notification gem"
   spec.description = "Campfire (37signals ONCE) notifier for the exception_notification gem"
@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   end
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  spec.require_paths = [ "lib" ]
   spec.license = "MIT"
 
   spec.add_dependency "exception_notification", ">= 4.0"

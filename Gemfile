@@ -12,4 +12,4 @@ gem "minitest", "~> 5.16"
 
 gem "exception_notification", ">= 4.0"
 
-gem "rubocop", "~> 1.21"
+gem "rubocop-rails-omakase"
