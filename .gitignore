@@ -1,0 +1,39 @@
+# Bundler
+/.bundle/
+/vendor/bundle
+
+# Built gem artifacts
+*.gem
+/pkg/
+/InstalledFiles
+
+# Documentation
+/.yardoc/
+/_yardoc/
+/doc/
+/rdoc/
+
+# Test/coverage
+/coverage/
+/spec/reports/
+/spec/examples.txt
+/spec/tmp/
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+# Misc Ruby
+*.rbc
+.byebug_history
+.rvmrc
+
+# Environment
+.env
+/.config
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

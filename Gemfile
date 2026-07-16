@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+source "https://gem.coop"
+
+# Specify your gem's dependencies in exception_notification-campfire-once.gemspec
+gemspec
+
+gem "irb"
+gem "rake", "~> 13.0"
+
+gem "minitest", "~> 5.16"
+
+gem "exception_notification", ">= 4.0"
+
+gem "rubocop-rails-omakase"

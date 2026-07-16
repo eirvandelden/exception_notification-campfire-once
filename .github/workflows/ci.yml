@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint_ruby:
+    name: Lint Ruby (RuboCop)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: spinel-coop/setup-rv@main
+        with:
+          ruby-version: current
+          install-gems: true
+      - run: bundle exec rubocop --parallel --format github
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: spinel-coop/setup-rv@main
+        with:
+          ruby-version: current
+          install-gems: true
+      - run: bundle exec rake test
