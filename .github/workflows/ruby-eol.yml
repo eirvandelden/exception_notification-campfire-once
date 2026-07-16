@@ -1,0 +1,24 @@
+name: Ruby EOL Check
+
+on:
+  schedule:
+    - cron: "0 9 1 * *" # First of every month
+  workflow_dispatch:
+
+jobs:
+  check_ruby_eol:
+    name: Check Ruby EOL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Check if targeted Ruby version is EOL
+        run: |
+          RUBY_VERSION=$(cat .ruby-version)
+          EOL=$(curl -s "https://endoflife.date/api/ruby/${RUBY_VERSION}.json" | jq -r '.eol')
+          TODAY=$(date +%Y-%m-%d)
+          echo "Ruby ${RUBY_VERSION} EOL: ${EOL}"
+          if [[ "${TODAY}" > "${EOL}" ]]; then
+            echo "::warning::Ruby ${RUBY_VERSION} reached EOL on ${EOL}. Time to bump .ruby-version and required_ruby_version in the gemspec."
+          else
+            echo "Ruby ${RUBY_VERSION} is supported until ${EOL}."
+          fi

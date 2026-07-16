@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = [ "lib" ]
-  spec.license = "MIT"
+  spec.license = "osaassy"
 
   spec.add_dependency "exception_notification", ">= 4.0"
 
