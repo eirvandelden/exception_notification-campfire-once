@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = [ "lib" ]
   spec.license = "Nonstandard"
 
-  spec.add_dependency "exception_notification", ">= 4.0"
+  spec.add_dependency "exception_notification", ">= 5.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://guides.rubygems.org/make-your-own-gem/

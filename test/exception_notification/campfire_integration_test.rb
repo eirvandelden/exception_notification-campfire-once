@@ -74,4 +74,11 @@ class CampfireIntegrationTest < Minitest::Test
   def test_version_is_stable_for_source_checkouts
     assert_equal "0.1.0", ExceptionNotification::Once::Campfire::VERSION
   end
+
+  def test_gemspec_requires_exception_notification_5_or_newer
+    specification = Gem::Specification.load("exception_notification-campfire-once.gemspec")
+    dependency = specification.dependencies.find { |item| item.name == "exception_notification" }
+
+    assert_equal Gem::Requirement.new(">= 5.0"), dependency.requirement
+  end
 end

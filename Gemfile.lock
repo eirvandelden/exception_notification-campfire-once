@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     exception_notification-campfire-once (0.1.0)
-      exception_notification (>= 4.0)
+      exception_notification (>= 5.0)
 
 GEM
   remote: https://gem.coop/
