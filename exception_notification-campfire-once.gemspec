@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/exception_notification/campfire/once/version"
+require_relative "lib/exception_notification/campfire_once/version"
 
 Gem::Specification.new do |spec|
   spec.name = "exception_notification-campfire-once"
-  spec.version = ExceptionNotification::Campfire::Once::VERSION
+  spec.version = ExceptionNotification::CampfireOnce::VERSION
   spec.authors = ["Etienne van Delden de la Haije"]
   spec.email = ["etienne@vandelden.family"]
 
