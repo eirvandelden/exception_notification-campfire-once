@@ -43,6 +43,16 @@ class CampfireIntegrationTest < Minitest::Test
     assert_predicate status, :success?, output
   end
 
+  def test_console_loads_the_public_entrypoint
+    output, status = Open3.capture2e(
+      RbConfig.ruby,
+      "-r./test/support/console_irb_stub",
+      "bin/console"
+    )
+
+    assert_predicate status, :success?, output
+  end
+
   def test_non_rails_app_swallows_webhook_delivery_failures
     output, status = Open3.capture2e(
       RbConfig.ruby,
