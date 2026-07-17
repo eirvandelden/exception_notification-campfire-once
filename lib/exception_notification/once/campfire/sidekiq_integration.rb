@@ -23,8 +23,8 @@ module ExceptionNotification
         extend ActiveSupport::Concern
 
         included do
-          def discard_job(exception)
-            ExceptionNotifier.notify_exception(exception, data: { job: self.class.name, action: "discarded" })
+          after_discard do |job, exception|
+            ExceptionNotifier.notify_exception(exception, data: { job: job.class.name, action: "discarded" })
           end
         end
       end
