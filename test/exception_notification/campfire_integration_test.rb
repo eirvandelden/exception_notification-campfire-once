@@ -6,6 +6,46 @@ require "rbconfig"
 require "exception_notification"
 require "exception_notification/once/campfire"
 
+module Rails
+  def self.application
+    nil
+  end
+end
+
+class FakeMiddlewareStack
+  def initialize
+    @entries = []
+  end
+
+  def use(klass, **options)
+    @entries << klass.new(->(_env) { [ 200, {}, [] ] }, options)
+  end
+
+  def include?(klass)
+    @entries.any? { |entry| entry.is_a?(klass) }
+  end
+end
+
+class FakeRailsConfig
+  attr_reader :middleware
+
+  def initialize
+    @middleware = FakeMiddlewareStack.new
+  end
+end
+
+class FakeRailsApp
+  attr_reader :config
+
+  def initialize
+    @config = FakeRailsConfig.new
+  end
+
+  def self.module_parent_name
+    "TestApp"
+  end
+end
+
 class CampfireIntegrationTest < Minitest::Test
   def teardown
     ExceptionNotifier.unregister_exception_notifier(:campfire)
@@ -80,5 +120,34 @@ class CampfireIntegrationTest < Minitest::Test
     dependency = specification.dependencies.find { |item| item.name == "exception_notification" }
 
     assert_equal Gem::Requirement.new(">= 5.0"), dependency.requirement
+  end
+
+  def test_install_registers_campfire_notifier
+    fake_app = FakeRailsApp.new
+    Rails.stub(:application, fake_app) do
+      ExceptionNotification::Once::Campfire.install!(webhook_url: "https://example.com/rooms/1/abc123/messages")
+    end
+    assert_instance_of ExceptionNotifier::CampfireNotifier,
+      ExceptionNotifier.registered_exception_notifier(:campfire)
+  end
+
+  def test_install_inserts_rack_middleware
+    fake_app = FakeRailsApp.new
+    Rails.stub(:application, fake_app) do
+      ExceptionNotification::Once::Campfire.install!(webhook_url: "https://example.com/rooms/1/abc123/messages")
+    end
+    assert fake_app.config.middleware.include?(ExceptionNotification::Rack)
+  end
+
+  def test_install_raises_on_unknown_background
+    fake_app = FakeRailsApp.new
+    Rails.stub(:application, fake_app) do
+      assert_raises(ArgumentError) do
+        ExceptionNotification::Once::Campfire.install!(
+          webhook_url: "https://example.com/rooms/1/abc123/messages",
+          background: :unknown
+        )
+      end
+    end
   end
 end
