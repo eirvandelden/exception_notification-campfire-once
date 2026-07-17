@@ -8,16 +8,28 @@ module ExceptionNotification
       module ActiveJobIntegration
         extend ActiveSupport::Concern
 
-        included do
-          around_perform do |_job, block|
-            block.call
-          rescue => exception
-            ExceptionNotifier.notify_exception(exception, data: { job: self.class.name })
-            raise
+        def perform_now
+          @exception_notification_discarded_exception = nil
+          result = super
+
+          if @exception_notification_discarded_exception
+            ExceptionNotifier.notify_exception(
+              @exception_notification_discarded_exception,
+              data: { job: self.class.name, action: "discarded" }
+            )
           end
 
+          result
+        rescue => exception
+          ExceptionNotifier.notify_exception(exception, data: { job: self.class.name })
+          raise
+        ensure
+          @exception_notification_discarded_exception = nil
+        end
+
+        included do
           after_discard do |job, exception|
-            ExceptionNotifier.notify_exception(exception, data: { job: job.class.name, action: "discarded" })
+            job.instance_variable_set(:@exception_notification_discarded_exception, exception)
           end
         end
       end
