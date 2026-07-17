@@ -124,18 +124,14 @@ class CampfireIntegrationTest < Minitest::Test
 
   def test_install_registers_campfire_notifier
     fake_app = FakeRailsApp.new
-    Rails.stub(:application, fake_app) do
-      ExceptionNotification::Once::Campfire.install!(webhook_url: "https://example.com/rooms/1/abc123/messages")
-    end
+    install_campfire(fake_app)
     assert_instance_of ExceptionNotifier::CampfireNotifier,
       ExceptionNotifier.registered_exception_notifier(:campfire)
   end
 
   def test_install_inserts_rack_middleware
     fake_app = FakeRailsApp.new
-    Rails.stub(:application, fake_app) do
-      ExceptionNotification::Once::Campfire.install!(webhook_url: "https://example.com/rooms/1/abc123/messages")
-    end
+    install_campfire(fake_app)
     assert fake_app.config.middleware.include?(ExceptionNotification::Rack)
   end
 
@@ -147,6 +143,16 @@ class CampfireIntegrationTest < Minitest::Test
           webhook_url: "https://example.com/rooms/1/abc123/messages",
           background: :unknown
         )
+      end
+    end
+  end
+
+  private
+
+  def install_campfire(fake_app)
+    Rails.stub(:application, fake_app) do
+      ExceptionNotification::Once::Campfire.stub(:install_active_job_hooks!, nil) do
+        ExceptionNotification::Once::Campfire.install!(webhook_url: "https://example.com/rooms/1/abc123/messages")
       end
     end
   end
