@@ -27,11 +27,11 @@ module ExceptionNotification
           @exception_notification_discarded_exception = nil
         end
 
-        included do
-          after_discard do |job, exception|
-            job.instance_variable_set(:@exception_notification_discarded_exception, exception)
-          end
+        def run_after_discard_procs(exception)
+          @exception_notification_discarded_exception = exception
+          super
         end
+        private :run_after_discard_procs
       end
     end
   end
