@@ -145,6 +145,8 @@ class CampfireIntegrationTest < Minitest::Test
         )
       end
     end
+
+    refute fake_app.config.middleware.include?(ExceptionNotification::Rack)
   end
 
   private
