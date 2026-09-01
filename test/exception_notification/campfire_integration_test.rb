@@ -122,6 +122,17 @@ class CampfireIntegrationTest < Minitest::Test
     assert_equal Gem::Requirement.new(">= 5.0"), dependency.requirement
   end
 
+  # Three files name the Ruby this gem targets, and nothing keeps them in step. A bump that
+  # misses one leaves the lint or the published gem disagreeing with what is actually run.
+  def test_every_file_naming_a_ruby_version_names_the_same_one
+    specification = Gem::Specification.load("exception_notification-campfire-once.gemspec")
+    linter = YAML.safe_load_file(".rubocop.yml")
+
+    assert_equal "3.4", File.read(".ruby-version").strip
+    assert_equal Gem::Requirement.new(">= 3.4"), specification.required_ruby_version
+    assert_equal 3.4, linter.dig("AllCops", "TargetRubyVersion")
+  end
+
   def test_install_registers_campfire_notifier
     fake_app = FakeRailsApp.new
     install_campfire(fake_app)
