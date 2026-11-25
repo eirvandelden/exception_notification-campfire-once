@@ -128,7 +128,7 @@ class CampfireIntegrationTest < Minitest::Test
     specification = Gem::Specification.load("exception_notification-campfire-once.gemspec")
     linter = YAML.safe_load_file(".rubocop.yml")
 
-    assert_equal "3.4", File.read(".ruby-version").strip
+    assert_equal "3.4.13", File.read(".ruby-version").strip
     assert_equal Gem::Requirement.new(">= 3.4"), specification.required_ruby_version
     assert_equal 3.4, linter.dig("AllCops", "TargetRubyVersion")
   end
